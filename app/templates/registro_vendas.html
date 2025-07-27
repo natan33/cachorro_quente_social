@@ -1,0 +1,173 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Registrar Nova Venda - Vendas Hot-Dog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Registrar Nova Venda</h2>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-success text-white">
+        <h5>Detalhes da Venda</h5>
+    </div>
+    <div class="card-body">
+        <form id="saleForm">
+            <div class="mb-3">
+                <label for="paymentMethod" class="form-label">Método de Pagamento</label>
+                <select class="form-select" id="paymentMethod" name="payment_method" required>
+                    <option value="">Selecione...</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cartão Débito">Cartão Débito</option>
+                    <option value="Cartão Crédito">Cartão Crédito</option>
+                    <option value="PIX">PIX</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="notes" class="form-label">Observações (Opcional)</label>
+                <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+            </div>
+
+            <hr>
+            <h5>Itens da Venda</h5>
+            <div id="saleItemsContainer">
+                </div>
+            <button type="button" class="btn btn-outline-primary mt-3" id="addItemButton">Adicionar Item</button>
+
+            <div class="row mt-4">
+                <div class="col-md-6 offset-md-6 text-end">
+                    <h4>Total da Venda: <span id="totalAmount">R$ 0.00</span></h4>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-success btn-lg">Finalizar Venda</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        let itemCounter = 0;
+        const products = {{ products|tojson }}; // Passa os produtos do Flask para o JS
+
+        function calculateTotal() {
+            let total = 0;
+            $('.sale-item').each(function() {
+                const quantity = parseInt($(this).find('.item-quantity').val()) || 0;
+                const productId = $(this).find('.item-product').val();
+                if (productId && quantity > 0) {
+                    const product = products.find(p => p.id == productId);
+                    if (product) {
+                        total += (product.price * quantity);
+                    }
+                }
+            });
+            $('#totalAmount').text(`R$ ${total.toFixed(2)}`);
+        }
+
+        function addItemRow() {
+            itemCounter++;
+            const newItemHtml = `
+                <div class="row g-3 mb-3 sale-item" id="item-${itemCounter}">
+                    <div class="col-md-6">
+                        <label for="product-${itemCounter}" class="form-label visually-hidden">Produto</label>
+                        <select class="form-select item-product" id="product-${itemCounter}" required>
+                            <option value="">Selecione o Produto</option>
+                            {% for product in products %}
+                                <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} (R$ {{ "%.2f"|format(product.price|float) }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="quantity-${itemCounter}" class="form-label visually-hidden">Quantidade</label>
+                        <input type="number" class="form-control item-quantity" id="quantity-${itemCounter}" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger w-100 remove-item" data-id="${itemCounter}">Remover</button>
+                    </div>
+                </div>
+            `;
+            $('#saleItemsContainer').append(newItemHtml);
+            calculateTotal();
+        }
+
+        // Adicionar primeiro item ao carregar a página
+        addItemRow();
+
+        $('#addItemButton').on('click', addItemRow);
+
+        $('#saleItemsContainer').on('change', '.item-product, .item-quantity', calculateTotal);
+        $('#saleItemsContainer').on('input', '.item-quantity', calculateTotal); // Para updates em tempo real
+
+        $('#saleItemsContainer').on('click', '.remove-item', function() {
+            $(this).closest('.sale-item').remove();
+            calculateTotal();
+        });
+
+        $('#saleForm').on('submit', function(e) {
+            e.preventDefault();
+
+            const items = [];
+            let isValid = true;
+            $('.sale-item').each(function() {
+                const productId = $(this).find('.item-product').val();
+                const quantity = parseInt($(this).find('.item-quantity').val());
+
+                if (!productId || quantity <= 0) {
+                    isValid = false;
+                    return false; // Sai do each
+                }
+                items.push({
+                    product_id: parseInt(productId),
+                    quantity: quantity
+                });
+            });
+
+            if (!isValid) {
+                alert('Por favor, preencha todos os produtos e quantidades válidas.');
+                return;
+            }
+
+            const paymentMethod = $('#paymentMethod').val();
+            if (!paymentMethod) {
+                alert('Por favor, selecione o método de pagamento.');
+                return;
+            }
+
+            const saleData = {
+                items: items,
+                payment_method: paymentMethod,
+                notes: $('#notes').val()
+            };
+
+            $.ajax({
+                url: "{{ url_for('dashboard.sell') }}",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(saleData),
+                success: function(response) {
+                    alert(response.message);
+                    if (response.success) {
+                        // Limpa o formulário após sucesso
+                        $('#saleItemsContainer').empty();
+                        $('#paymentMethod').val('');
+                        $('#notes').val('');
+                        addItemRow(); // Adiciona um novo item vazio para a próxima venda
+                        calculateTotal();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Erro desconhecido.';
+                    alert('Erro ao registrar venda: ' + errorMessage);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

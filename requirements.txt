@@ -13,3 +13,4 @@ python-dotenv
 Flask-Migrate
 Flask-WTF  
 mysql-connector-python
+cssmin

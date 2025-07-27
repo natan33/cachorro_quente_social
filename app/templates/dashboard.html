@@ -1,0 +1,259 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Dashboard - Vendas Hot-Dog{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Dashboard de Vendas</h2>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3 shadow">
+            <div class="card-header">Vendas do Dia</div>
+            <div class="card-body">
+                <h4 class="card-title" id="dailySalesCard">Carregando...</h4>
+                <p class="card-text">Total de vendas hoje.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3 shadow">
+            <div class="card-header">Total de Vendas (Geral)</div>
+            <div class="card-body">
+                <h4 class="card-title" id="totalSalesCard">Carregando...</h4>
+                <p class="card-text">Total de vendas acumuladas.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3 shadow">
+            <div class="card-header">Transações Hoje</div>
+            <div class="card-body">
+                <h4 class="card-title" id="dailyTransactionsCard">Carregando...</h4>
+                <p class="card-text">Número de vendas realizadas hoje.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filtros de Vendas</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="startDate" class="form-label">Data Início</label>
+                <input type="date" class="form-control" id="startDate">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate" class="form-label">Data Fim</label>
+                <input type="date" class="form-control" id="endDate">
+            </div>
+            <div class="col-md-3">
+                <label for="productFilter" class="form-label">Produto</label>
+                <input type="text" class="form-control" id="productFilter" placeholder="Nome do Produto">
+            </div>
+            <div class="col-md-3">
+                <label for="userFilter" class="form-label">Vendedor</label>
+                <input type="text" class="form-control" id="userFilter" placeholder="Nome do Vendedor">
+            </div>
+            <div class="col-md-12 text-end">
+                <button class="btn btn-secondary me-2" id="clearFilters">Limpar Filtros</button>
+                <button class="btn btn-primary" id="applyFilters">Aplicar Filtros</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Registros de Vendas</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="salesTable" class="table table-striped table-bordered" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>ID da Venda</th>
+                        <th>Data da Venda</th>
+                        <th>Valor Total</th>
+                        <th>Método Pagamento</th>
+                        <th>Vendedor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="saleDetailsModal" tabindex="-1" aria-labelledby="saleDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="saleDetailsModalLabel">Detalhes da Venda #<span id="modalSaleId"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Vendedor:</strong> <span id="modalSeller"></span></p>
+                <p><strong>Data da Venda:</strong> <span id="modalSaleDate"></span></p>
+                <p><strong>Valor Total:</strong> <span id="modalTotalAmount"></span></p>
+                <p><strong>Método de Pagamento:</strong> <span id="modalPaymentMethod"></span></p>
+                <p><strong>Observações:</strong> <span id="modalNotes"></span></p>
+
+                <h6>Itens da Venda:</h6>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Quantidade</th>
+                            <th>Preço Unitário</th>
+                            <th>Total Item</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalSaleItems">
+                        </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        var salesTable;
+
+        // Função para carregar os dados dos cards
+        function loadDashboardCards() {
+            $.ajax({
+                url: "{{ url_for('dashboard.get_dashboard_cards_data') }}",
+                method: "GET",
+                success: function(response) {
+                    $('#dailySalesCard').text(response.daily_sales);
+                    $('#totalSalesCard').text(response.total_sales);
+                    $('#dailyTransactionsCard').text(response.daily_transactions);
+
+                    // Atualizar Top Produtos
+                    var topProductsHtml = '';
+                    if (response.top_products_today.length > 0) {
+                        topProductsHtml += '<h6>Top 3 Produtos Vendidos Hoje:</h6><ul>';
+                        $.each(response.top_products_today, function(index, product) {
+                            topProductsHtml += '<li>' + product.name + ' (' + product.quantity + ' unidades)</li>';
+                        });
+                        topProductsHtml += '</ul>';
+                    } else {
+                        topProductsHtml += '<p>Nenhum produto vendido hoje.</p>';
+                    }
+                    // Adicione um card ou seção para exibir topProductsHtml no seu dashboard.html
+                    // Por simplicidade, vou logar aqui para que você veja o formato.
+                    console.log("Top Produtos Hoje:", topProductsHtml);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Erro ao carregar dados dos cards:", error);
+                }
+            });
+        }
+
+        // Inicializa o DataTables
+        function initializeDataTable() {
+            if ($.fn.DataTable.isDataTable('#salesTable')) {
+                $('#salesTable').DataTable().destroy(); // Destrói a instância existente se houver
+            }
+
+            salesTable = $('#salesTable').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "{{ url_for('dashboard.get_sales') }}",
+                    "type": "GET",
+                    "data": function(d) {
+                        d.start_date = $('#startDate').val();
+                        d.end_date = $('#endDate').val();
+                        d.product_filter = $('#productFilter').val();
+                        d.user_filter = $('#userFilter').val();
+                    }
+                },
+                "columns": [
+                    { "data": 0 }, // ID da Venda
+                    { "data": 1 }, // Data da Venda
+                    { "data": 2 }, // Valor Total
+                    { "data": 3 }, // Método Pagamento
+                    { "data": 4 }, // Vendedor
+                    { "data": 5, "orderable": false } // Ações (botão Detalhes)
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
+                },
+                "order": [[ 1, "desc" ]] // Ordena por Data da Venda (coluna 1) descendente por padrão
+            });
+        }
+
+        // Carrega dados iniciais dos cards
+        loadDashboardCards();
+        initializeDataTable();
+
+        // Evento para aplicar filtros
+        $('#applyFilters').on('click', function() {
+            salesTable.ajax.reload(); // Recarrega os dados da tabela com os novos filtros
+            loadDashboardCards(); // Recarrega os cards também, se eles forem impactados pelos filtros de data
+        });
+
+        // Evento para limpar filtros
+        $('#clearFilters').on('click', function() {
+            $('#startDate').val('');
+            $('#endDate').val('');
+            $('#productFilter').val('');
+            $('#userFilter').val('');
+            salesTable.ajax.reload();
+            loadDashboardCards();
+        });
+
+        // Abrir modal de detalhes da venda
+        $('#salesTable tbody').on('click', '.view-details', function() {
+            var saleId = $(this).data('id');
+            $.ajax({
+                url: `/api/sale_details/${saleId}`,
+                method: 'GET',
+                success: function(response) {
+                    $('#modalSaleId').text(response.id);
+                    $('#modalSeller').text(response.seller);
+                    $('#modalSaleDate').text(response.sale_date);
+                    $('#modalTotalAmount').text(response.total_amount);
+                    $('#modalPaymentMethod').text(response.payment_method);
+                    $('#modalNotes').text(response.notes);
+
+                    var itemsHtml = '';
+                    $.each(response.items, function(index, item) {
+                        itemsHtml += `
+                            <tr>
+                                <td>${item.product_name}</td>
+                                <td>${item.quantity}</td>
+                                <td>${item.unit_price}</td>
+                                <td>${item.item_total}</td>
+                            </tr>
+                        `;
+                    });
+                    $('#modalSaleItems').html(itemsHtml);
+                    var saleDetailsModal = new bootstrap.Modal(document.getElementById('saleDetailsModal'));
+                    saleDetailsModal.show();
+                },
+                error: function(xhr, status, error) {
+                    alert('Erro ao carregar detalhes da venda: ' + error);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
