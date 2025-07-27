@@ -1,0 +1,16 @@
+{
+  "main.css": {
+    "file": "main-CBOeyayj.css",
+    "src": "main.js",
+    "isEntry": true
+  },
+  "main.js": {
+    "file": "main-DWS9H-kE.js",
+    "name": "main",
+    "src": "main.js",
+    "isEntry": true,
+    "css": [
+      "main-CBOeyayj.css"
+    ]
+  }
+}

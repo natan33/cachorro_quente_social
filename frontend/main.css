@@ -1,0 +1,16 @@
+/* Importe o CSS do Bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Importe o CSS do DataTables para o tema padrão (DataTables.net-dt) */
+/* O erro indicou 'dataTables.dataTables.min.css', verifique se é esse o nome exato do arquivo */
+@import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+
+/* Se você estiver usando o tema Bootstrap para DataTables (requer datatables.net-bs5 instalado) */
+/* @import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css'; */
+
+/* Seu CSS customizado */
+body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+/* ... etc ... */

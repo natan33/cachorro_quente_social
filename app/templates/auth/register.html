@@ -1,0 +1,39 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Registrar - Vendas Hot-Dog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-lg p-3 mb-5 bg-body rounded">
+            <div class="card-header bg-success text-white text-center">
+                <h3>Registrar Nova Conta</h3>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('auth.register') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuário</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmar Senha</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Registrar</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <small class="text-muted">Já tem uma conta? <a href="{{ url_for('auth.login') }}">Faça login</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
