@@ -4,7 +4,6 @@ Flask-Mail
 Flask-Bcrypt
 Flask-SQLAlchemy
 Flask-Executor
-Flask-Assets
 Flask-Compress
 mysqlclient
 pandas
@@ -13,4 +12,4 @@ python-dotenv
 Flask-Migrate
 Flask-WTF  
 mysql-connector-python
-cssmin
+email_validator

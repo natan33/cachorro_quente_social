@@ -18,6 +18,9 @@ def register():
         password = form.password.data
         confirm_password = form.confirm_password.data
 
+        # Verifica se o nome de usuário ou email já existem
+          # Debugging: imprime os erros do formulário
+
         if User.query.filter_by(username=username).first():
             flash('Nome de usuário já existe.', 'danger')
             return render_template('auth/register.html', form=form)
@@ -36,6 +39,12 @@ def register():
         db.session.commit()
         flash('Sua conta foi criada com sucesso! Faça login.', 'success')
         return redirect(url_for('auth.login'))
+    
+    else:
+        print(form.errors)
+    # Se o formulário não for válido, renderiza novamente com os erros
+    # Isso é útil para depuração e para mostrar os erros ao usuário
+
     return render_template('auth/register.html', form=form)
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -50,7 +59,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('dashboard.index'))
+            return redirect(url_for('main.index'))
         else:
             flash('Login ou senha incorretos.', 'danger')
     return render_template('auth/login.html', form=form)
