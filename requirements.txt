@@ -5,6 +5,11 @@ Flask-Bcrypt
 Flask-SQLAlchemy
 Flask-Executor
 Flask-Assets
+Flask-Compress
 mysqlclient
 pandas
 numpy
+python-dotenv
+Flask-Migrate
+Flask-WTF  
+mysql-connector-python

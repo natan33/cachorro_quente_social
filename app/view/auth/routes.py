@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
 from app.view.forms import LoginForm, RegisterForm
-from app.view.auth.routes import auth 
+from app.view.auth import auth 
 from app import db
 
 @auth.route('/register', methods=['GET', 'POST'])
