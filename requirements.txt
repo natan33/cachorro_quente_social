@@ -6,3 +6,5 @@ Flask-SQLAlchemy
 Flask-Executor
 Flask-Assets
 mysqlclient
+pandas
+numpy
