@@ -3,11 +3,19 @@
 {% block title %}Dashboard - Vendas Hot-Dog{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2>Dashboard de Vendas</h2>
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="mb-0">Dashboard de Vendas</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-success rounded-circle shadow-lg" data-bs-toggle="modal"
+            data-bs-target="#registerSaleModal" title="Nova Venda"
+            style="width: 50px; height: 50px; font-size: 24px; line-height: 1; padding: 0;">
+            +
+        </button>
     </div>
 </div>
+
 
 <div class="row mb-4">
     <div class="col-md-4">
@@ -61,6 +69,12 @@
                 <label for="userFilter" class="form-label">Vendedor</label>
                 <input type="text" class="form-control" id="userFilter" placeholder="Nome do Vendedor">
             </div>
+
+            <div class="col-md-3">
+
+
+            </div>
+
             <div class="col-md-12 text-end">
                 <button class="btn btn-secondary me-2" id="clearFilters">Limpar Filtros</button>
                 <button class="btn btn-primary" id="applyFilters">Aplicar Filtros</button>
@@ -87,7 +101,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
@@ -97,8 +111,10 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="saleDetailsModalLabel">Detalhes da Venda #<span id="modalSaleId"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="saleDetailsModalLabel">Detalhes da Venda #<span id="modalSaleId"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p><strong>Vendedor:</strong> <span id="modalSeller"></span></p>
@@ -118,7 +134,7 @@
                         </tr>
                     </thead>
                     <tbody id="modalSaleItems">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
             <div class="modal-footer">
@@ -128,132 +144,79 @@
     </div>
 </div>
 
+
+<!-- Modal de Registro de Venda -->
+<div class="modal fade" id="registerSaleModal" tabindex="-1" aria-labelledby="registerSaleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="registerSaleModalLabel">Registrar Nova Venda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="saleForm">
+                    <!-- Produto fixo -->
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Produto</label>
+                        <input type="text" class="form-control" id="productName" value="Cachorro Quente" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantidade</label>
+                        <input type="number" class="form-control" id="quantity" value="1" min="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label">Método de Pagamento</label>
+                        <select class="form-select" id="paymentMethod" name="payment_method" required>
+                            <option value="">Selecione...</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Cartão Débito">Cartão Débito</option>
+                            <option value="Cartão Crédito">Cartão Crédito</option>
+                            <option value="PIX">PIX</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Pagamento efetuado?</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="payment_status" id="paymentPaid" value="paid">
+                            <label class="form-check-label" for="paymentPaid">Sim</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="payment_status" id="paymentNotPaid" value="not_paid" checked>
+                            <label class="form-check-label" for="paymentNotPaid">Não</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Observações (Opcional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6 offset-md-6 text-end">
+                            <h4>Total da Venda: <span id="totalAmount">R$ 5.00</span></h4>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Finalizar Venda</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 {% endblock %}
 
 {% block scripts %}
-<script>
-    $(document).ready(function() {
-        var salesTable;
-
-        // Função para carregar os dados dos cards
-        function loadDashboardCards() {
-            $.ajax({
-                url: "{{ url_for('main.get_dashboard_cards_data') }}",
-                method: "GET",
-                success: function(response) {
-                    $('#dailySalesCard').text(response.daily_sales);
-                    $('#totalSalesCard').text(response.total_sales);
-                    $('#dailyTransactionsCard').text(response.daily_transactions);
-
-                    // Atualizar Top Produtos
-                    var topProductsHtml = '';
-                    if (response.top_products_today.length > 0) {
-                        topProductsHtml += '<h6>Top 3 Produtos Vendidos Hoje:</h6><ul>';
-                        $.each(response.top_products_today, function(index, product) {
-                            topProductsHtml += '<li>' + product.name + ' (' + product.quantity + ' unidades)</li>';
-                        });
-                        topProductsHtml += '</ul>';
-                    } else {
-                        topProductsHtml += '<p>Nenhum produto vendido hoje.</p>';
-                    }
-                    // Adicione um card ou seção para exibir topProductsHtml no seu dashboard.html
-                    // Por simplicidade, vou logar aqui para que você veja o formato.
-                    console.log("Top Produtos Hoje:", topProductsHtml);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Erro ao carregar dados dos cards:", error);
-                }
-            });
-        }
-
-        // Inicializa o DataTables
-        function initializeDataTable() {
-            if ($.fn.DataTable.isDataTable('#salesTable')) {
-                $('#salesTable').DataTable().destroy(); // Destrói a instância existente se houver
-            }
-
-            salesTable = $('#salesTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ajax": {
-                    "url": "{{ url_for('main.get_sales') }}",
-                    "type": "GET",
-                    "data": function(d) {
-                        d.start_date = $('#startDate').val();
-                        d.end_date = $('#endDate').val();
-                        d.product_filter = $('#productFilter').val();
-                        d.user_filter = $('#userFilter').val();
-                    }
-                },
-                "columns": [
-                    { "data": 0 }, // ID da Venda
-                    { "data": 1 }, // Data da Venda
-                    { "data": 2 }, // Valor Total
-                    { "data": 3 }, // Método Pagamento
-                    { "data": 4 }, // Vendedor
-                    { "data": 5, "orderable": false } // Ações (botão Detalhes)
-                ],
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Portuguese-Brasil.json"
-                },
-                "order": [[ 1, "desc" ]] // Ordena por Data da Venda (coluna 1) descendente por padrão
-            });
-        }
-
-        // Carrega dados iniciais dos cards
-        loadDashboardCards();
-        initializeDataTable();
-
-        // Evento para aplicar filtros
-        $('#applyFilters').on('click', function() {
-            salesTable.ajax.reload(); // Recarrega os dados da tabela com os novos filtros
-            loadDashboardCards(); // Recarrega os cards também, se eles forem impactados pelos filtros de data
-        });
-
-        // Evento para limpar filtros
-        $('#clearFilters').on('click', function() {
-            $('#startDate').val('');
-            $('#endDate').val('');
-            $('#productFilter').val('');
-            $('#userFilter').val('');
-            salesTable.ajax.reload();
-            loadDashboardCards();
-        });
-
-        // Abrir modal de detalhes da venda
-        $('#salesTable tbody').on('click', '.view-details', function() {
-            var saleId = $(this).data('id');
-            $.ajax({
-                url: `/api/sale_details/${saleId}`,
-                method: 'GET',
-                success: function(response) {
-                    $('#modalSaleId').text(response.id);
-                    $('#modalSeller').text(response.seller);
-                    $('#modalSaleDate').text(response.sale_date);
-                    $('#modalTotalAmount').text(response.total_amount);
-                    $('#modalPaymentMethod').text(response.payment_method);
-                    $('#modalNotes').text(response.notes);
-
-                    var itemsHtml = '';
-                    $.each(response.items, function(index, item) {
-                        itemsHtml += `
-                            <tr>
-                                <td>${item.product_name}</td>
-                                <td>${item.quantity}</td>
-                                <td>${item.unit_price}</td>
-                                <td>${item.item_total}</td>
-                            </tr>
-                        `;
-                    });
-                    $('#modalSaleItems').html(itemsHtml);
-                    var saleDetailsModal = new bootstrap.Modal(document.getElementById('saleDetailsModal'));
-                    saleDetailsModal.show();
-                },
-                error: function(xhr, status, error) {
-                    alert('Erro ao carregar detalhes da venda: ' + error);
-                }
-            });
-        });
-    });
-</script>
+<script src="{{ vite_asset('dashboard.js')}}"></script>
+<script src="{{ vite_asset('registro_venda.js')}}"></script>
 {% endblock %}

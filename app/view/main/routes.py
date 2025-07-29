@@ -127,6 +127,17 @@ def get_sale_details(sale_id):
     }
     return jsonify(sale_data)
 
+
+@main.route('/api/products')
+@login_required
+def get_products():
+    produtos = Product.query.all()
+    return jsonify([{
+        "id": p.id,
+        "name": p.name,
+        "price": p.price
+    } for p in produtos])
+
 @main.route('/api/dashboard_cards_data', methods=['GET'])
 @login_required
 def get_dashboard_cards_data():
@@ -169,63 +180,63 @@ def get_dashboard_cards_data():
         'top_products_today': top_products_data
     })
 
-@main.route('/sell', methods=['GET', 'POST'])
+@main.route('/sell', methods=['POST'])
 @login_required
 def sell():
-    products = Product.query.filter_by(is_active=True).all()
-    if request.method == 'POST':
-        sale_data = request.get_json()
-        if not sale_data:
-            return jsonify({'success': False, 'message': 'Dados da venda inválidos'}), 400
+    sale_data = request.get_json()
+    if not sale_data:
+        return jsonify({'success': False, 'message': 'Dados da venda inválidos'}), 400
 
-        items_data = sale_data.get('items')
-        payment_method = sale_data.get('payment_method')
-        notes = sale_data.get('notes')
+    items_data = sale_data.get('items')
+    payment_method = sale_data.get('payment_method')
+    payment_status = sale_data.get('payment_status', 'not_paid')  # padrão 'not_paid' se não enviado
+    notes = sale_data.get('notes')
 
-        if not items_data:
-            return jsonify({'success': False, 'message': 'Nenhum item na venda.'}), 400
+    if not items_data:
+        return jsonify({'success': False, 'message': 'Nenhum item na venda.'}), 400
 
-        total_sale_amount = 0
-        sale_items = []
-        for item in items_data:
-            product_id = item.get('product_id')
-            quantity = item.get('quantity')
-            product = Product.query.get(product_id)
-            if not product or quantity <= 0:
-                return jsonify({'success': False, 'message': f'Produto inválido ou quantidade para o produto ID {product_id}.'}), 400
+    total_sale_amount = 0
+    sale_items = []
+    for item in items_data:
+        product_id = item.get('product_id')
+        quantity = item.get('quantity')
+        product = Product.query.get(product_id)
+        if not product or quantity <= 0:
+            return jsonify({'success': False, 'message': f'Produto inválido ou quantidade para o produto ID {product_id}.'}), 400
 
-            item_total = product.price * quantity
-            total_sale_amount += item_total
-            sale_items.append(SaleItem(
-                product_id=product.id,
-                quantity=quantity,
-                unit_price=product.price,
-                item_total=item_total
-            ))
+        item_total = product.price * quantity
+        total_sale_amount += item_total
+        sale_items.append(SaleItem(
+            product_id=product.id,
+            quantity=quantity,
+            unit_price=product.price,
+            item_total=item_total
+        ))
 
-        try:
-            new_sale = Sale(
-                user_id=current_user.id,
-                total_amount=total_sale_amount,
-                payment_method=payment_method,
-                notes=notes
-            )
-            db.session.add(new_sale)
-            db.session.flush() # Para obter o ID da venda antes do commit
-            for item in sale_items:
-                item.sale_id = new_sale.id
-                db.session.add(item)
-            db.session.commit()
+    try:
+        new_sale = Sale(
+            user_id=current_user.id,
+            total_amount=total_sale_amount,
+            payment_method=payment_method,
+            payment_status=payment_status,  # <-- adiciona aqui na model
+            notes=notes
+        )
+        db.session.add(new_sale)
+        db.session.flush()  # Para obter o ID da venda antes do commit
 
-            # Enviar e-mail em segundo plano
-            executor.submit(send_sale_confirmation_email, new_sale.id, current_user.email, current_user.username)
+        for item in sale_items:
+            item.sale_id = new_sale.id
+            db.session.add(item)
+        db.session.commit()
 
-            return jsonify({'success': True, 'message': 'Venda registrada com sucesso!', 'sale_id': new_sale.id}), 201
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({'success': False, 'message': f'Erro ao registrar venda: {str(e)}'}), 500
+        # Enviar e-mail em segundo plano (se usar executor)
+        executor.submit(send_sale_confirmation_email, new_sale.id, current_user.email, current_user.username)
 
-    return render_template('registro_vendas.html', products=products)
+        return jsonify({'success': True, 'message': 'Venda registrada com sucesso!', 'sale_id': new_sale.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Erro ao registrar venda: {str(e)}'}), 500
+
 
 # Função para enviar email
 def send_sale_confirmation_email(sale_id, recipient_email, username):

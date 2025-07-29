@@ -15,6 +15,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'frontend/main.js',
+        dashboard: 'frontend/dashboard.js',
+        registro_venda: 'frontend/registro_venda.js',
         style: 'frontend/main.css',
       },
     },

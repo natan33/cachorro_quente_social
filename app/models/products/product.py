@@ -19,6 +19,7 @@ class Sale(db.Model):
     total_amount = db.Column(db.Numeric(10, 2), nullable=False)
     sale_date = db.Column(db.DateTime, default=datetime.now())
     payment_method = db.Column(db.String(50)) # Ex: 'Dinheiro', 'Cartão', 'PIX'
+    payment_status = db.Column(db.String(20), default='not_paid')  # 'paid' ou 'not_paid'
     notes = db.Column(db.Text)
 
     items = db.relationship('SaleItem', backref='sale', lazy='dynamic', cascade="all, delete-orphan")
