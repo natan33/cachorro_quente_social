@@ -138,7 +138,7 @@
         // Função para carregar os dados dos cards
         function loadDashboardCards() {
             $.ajax({
-                url: "{{ url_for('dashboard.get_dashboard_cards_data') }}",
+                url: "{{ url_for('main.get_dashboard_cards_data') }}",
                 method: "GET",
                 success: function(response) {
                     $('#dailySalesCard').text(response.daily_sales);
@@ -176,7 +176,7 @@
                 "processing": true,
                 "serverSide": true,
                 "ajax": {
-                    "url": "{{ url_for('dashboard.get_sales') }}",
+                    "url": "{{ url_for('main.get_sales') }}",
                     "type": "GET",
                     "data": function(d) {
                         d.start_date = $('#startDate').val();

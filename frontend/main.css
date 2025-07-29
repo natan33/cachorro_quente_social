@@ -1,16 +1,128 @@
-/* Importe o CSS do Bootstrap */
 @import 'bootstrap/dist/css/bootstrap.min.css';
-
-/* Importe o CSS do DataTables para o tema padrão (DataTables.net-dt) */
-/* O erro indicou 'dataTables.dataTables.min.css', verifique se é esse o nome exato do arquivo */
 @import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 
-/* Se você estiver usando o tema Bootstrap para DataTables (requer datatables.net-bs5 instalado) */
-/* @import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css'; */
-
-/* Seu CSS customizado */
+/* Fonte mais moderna */
 body {
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: #fff8f0; /* tom claro levemente quente */
+    color: #3e3e3e;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
-/* ... etc ... */
+
+/* Container principal */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+/* Títulos */
+h1, h2, h3 {
+    font-weight: 700;
+    color: #d94f04; /* tom de laranja queimado */
+}
+
+/* Cards de produto */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    background: #fff;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
+}
+
+/* Imagem do produto */
+.card img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    object-fit: cover;
+    height: 200px;
+    width: 100%;
+}
+
+/* Botões */
+.btn-primary {
+    background-color: #d94f04;
+    border: none;
+    border-radius: 50px;
+    padding: 0.5rem 2rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #bf4603;
+}
+
+/* Navbar personalizada */
+.navbar {
+    background-color: #ff7043; /* cor quente e convidativa */
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: #fff !important;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+
+.nav-link {
+    color: #fff !important;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #ffe0cc !important;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background-color: #ff7043;
+    color: #fff;
+    margin-top: 3rem;
+    font-weight: 600;
+}
+
+/* Formulários */
+.form-control {
+    border-radius: 50px;
+    border: 1.5px solid #d94f04;
+    padding: 0.6rem 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #bf4603;
+    box-shadow: 0 0 8px rgba(219, 81, 0, 0.5);
+}
+
+/* Tabelas DataTables */
+table.dataTable {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.05);
+}
+
+table.dataTable thead {
+    background-color: #d94f04;
+    color: #fff;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #ffe7d1;
+}
+
+/* Scroll suave para toda a página */
+html {
+    scroll-behavior: smooth;
+}

@@ -38,7 +38,7 @@ def create_app():
 
     def vite_asset(filename):
         if app.debug or not _manifest:
-            manifest_path =fr'C:\Users\natan\Área de Trabalho\cachorro_quente\app\static\dist\manifest.json' # VOLTE PARA O CAMINHO DINÂMICO
+            manifest_path =fr'/home/natan/cachorro_quente_social-development/app/static/dist/.vite/manifest.json' # VOLTE PARA O CAMINHO DINÂMICO
             if not os.path.exists(manifest_path):
                 print(f"ATENÇÃO: manifest.json não encontrado em {manifest_path}. Execute 'npm run build'.")
                 return url_for('static', filename=filename) 
