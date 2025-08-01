@@ -10,6 +10,6 @@ pandas
 numpy
 python-dotenv
 Flask-Migrate
-Flask-WTF  
+Flask-WTF 
 mysql-connector-python
 email_validator

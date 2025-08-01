@@ -1,26 +1,39 @@
-// Importe seu CSS principal (que por sua vez importará o CSS das libs)
+// =====================
+// Importação de CSS
+// =====================
 import './main.css';
 
-// Importe as dependências JavaScript
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Bootstrap JS com Popper
-import $ from 'jquery'; // Importe jQuery e atribua-o à variável $
-import DataTable from 'datatables.net'; // Importe DataTables core
 
-// Certifique-se de que jQuery está globalmente acessível para plugins antigos
-// e para DataTables, se ele o espera no ambiente global.
-window.jQuery = $;
+// =====================
+// jQuery e Plugins
+// =====================
+import $ from 'jquery';
+import DataTable from 'datatables.net';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
+// =====================
+// Bootstrap JS (inclui Popper e dropdown, modal, etc)
+// =====================
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Bootstrap 5, já inclui Popper.js
+
+
+import * as bootstrap from 'bootstrap';
+
+// Expõe globalmente
 window.$ = $;
-
-// Você pode importar os módulos JS de integração do DataTables separadamente, se precisar
-// import 'datatables.net-bs5/js/dataTables.bootstrap5.min.js'; // Exemplo para integração Bootstrap 5
-
-// Seu código JS customizado
-console.log('Vite está funcionando com Flask!');
-
-// Exemplo: Inicializar DataTables
-$(document).ready(function() {
-    // Certifique-se de que DataTable foi carregado corretamente
-    // Se você tiver uma tabela com o ID 'myTable'
-    // Exemplo básico:
-    // $('#myTable').DataTable();
+window.jQuery = $;
+window.bootstrap = bootstrap;
+// =====================
+// Inicializar plugins
+// =====================
+$(document).ready(function () {
+  // Inicialização DataTables (exemplo, ajuste o seletor da sua tabela)
+  // $('#minhaTabela').DataTable();
 });
+
+// =====================
+// Debug
+// =====================
+console.log('Vite está funcionando com Flask + Bootstrap!');
